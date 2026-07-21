@@ -7,23 +7,64 @@ use App\Models\CatatanHarian;
 use Google\Client;
 use Google\Service\Sheets;
 
-class CatatanHarianController extends Controller // Hanya satu '{' di sini
-{   
+class CatatanHarianController extends Controller
+{
+    /**
+     * Helper: ambil opsi datalist (nilai unik yang sudah pernah diinput)
+     * untuk field Kontrak Karya, Tanur Pemakaian, Jenis Material, Jenis Fluks.
+     * Setiap kali user mengetik nilai baru dan menyimpan, nilai itu otomatis
+     * akan muncul di datalist ini pada pemanggilan berikutnya.
+     */
+    private function getDatalistOptions()
+    {
+        return [
+            'kontrakOptions' => CatatanHarian::select('kontrak_karya')
+                ->distinct()->whereNotNull('kontrak_karya')->pluck('kontrak_karya'),
+            'tanurOptions' => CatatanHarian::select('tanur_pemakaian')
+                ->distinct()->whereNotNull('tanur_pemakaian')->pluck('tanur_pemakaian'),
+            'materialOptions' => CatatanHarian::select('jenis_material')
+                ->distinct()->whereNotNull('jenis_material')->pluck('jenis_material'),
+            'fluksOptions' => CatatanHarian::select('jenis_fluks')
+                ->distinct()->whereNotNull('jenis_fluks')->pluck('jenis_fluks'),
+        ];
+    }
+
+    /**
+     * Tampilkan formulir catatan harian.
+     * NOTE: sebelumnya method ini tidak ada di controller yang diberikan —
+     * jika route('dashboard') sudah diarahkan ke controller/method lain,
+     * pastikan method itu juga mengoper $kontrakOptions, $tanurOptions,
+     * $materialOptions, $fluksOptions ke view seperti di bawah ini,
+     * atau arahkan route-nya ke method create() ini.
+     */
+    public function create()
+    {
+        return view('dashboard', $this->getDatalistOptions());
+    }
+
     public function store(Request $request)
     {
         // 1. Validasi Input
         $validated = $request->validate([
-            'waktu_pencatatan' => 'required|date',
-            'kontrak_karya' => 'nullable|string',
-            'jenis_material' => 'nullable|string',
-            'kode_material' => 'required|string',
-            'jenis_furnace' => 'nullable|string',
-            'berat_material' => 'required|numeric',
-            'jenis_fluks' => 'nullable|string',
-            'berat_fluks' => 'required|numeric',
-            'berat_anoda' => 'required|numeric',
-            'berat_slag' => 'required|numeric',
-            'berat_sampel' => 'required|numeric',
+            'tanggal_lebur'          => 'required|date',
+            'no_lebur'                => 'required|integer',
+            'kontrak_karya'           => 'required|string',
+            'tanur_pemakaian'         => 'required|string',
+            'krusibel_ke'             => 'required|integer',
+            'jenis_material'          => 'required|string',
+            'berat_material'          => 'required|numeric',
+            'jumlah_ingot'            => 'nullable|integer',
+            'jenis_fluks'             => 'required|string',
+            'berat_fluks'             => 'required|numeric',
+            'loading_dore'            => 'nullable|date_format:H:i',
+            'pouring'                 => 'nullable|date_format:H:i',
+            'jumlah_jam_alat'         => 'nullable|date_format:H:i',
+            'completed_sof'           => 'nullable|date_format:H:i',
+            'suhu'                    => 'nullable|integer',
+            'berat_logam'             => 'required|numeric',
+            'jumlah_anoda_bar_ball'   => 'nullable|integer',
+            'berat_sample'            => 'required|numeric',
+            'berat_slag'              => 'required|numeric',
         ]);
 
         // 2. Simpan ke database bawaan (SQLite)
@@ -31,28 +72,36 @@ class CatatanHarianController extends Controller // Hanya satu '{' di sini
 
         // 3. Tembak data langsung ke Google Sheets
         try {
-            $client = new \Google\Client(); 
+            $client = new \Google\Client();
             $client->setAuthConfig(storage_path('app/google-credentials.json'));
             $client->addScope(\Google\Service\Sheets::SPREADSHEETS);
 
             $service = new \Google\Service\Sheets($client);
-                    
-            $spreadsheetId = '1d95pJnZzLJiPYuMhfio8h05lmvLnklbKR1JJKmbJoew'; 
-            $range = 'Sheet1!A:K';
+
+            $spreadsheetId = '1d95pJnZzLJiPYuMhfio8h05lmvLnklbKR1JJKmbJoew';
+            $range = 'Sheet1!A:S';
 
             $values = [
                 array_values([
-                    $request->waktu_pencatatan ?? '',
+                    $request->tanggal_lebur ?? '',
+                    $request->no_lebur ?? '',
                     $request->kontrak_karya ?? '',
+                    $request->tanur_pemakaian ?? '',
+                    $request->krusibel_ke ?? '',
                     $request->jenis_material ?? '',
-                    $request->kode_material ?? '',
-                    $request->jenis_furnace ?? '',
                     $request->berat_material ?? '',
+                    $request->jumlah_ingot ?? '',
                     $request->jenis_fluks ?? '',
                     $request->berat_fluks ?? '',
-                    $request->berat_anoda ?? '',
+                    $request->loading_dore ?? '',
+                    $request->pouring ?? '',
+                    $request->jumlah_jam_alat ?? '',
+                    $request->completed_sof ?? '',
+                    $request->suhu ?? '',
+                    $request->berat_logam ?? '',
+                    $request->jumlah_anoda_bar_ball ?? '',
+                    $request->berat_sample ?? '',
                     $request->berat_slag ?? '',
-                    $request->berat_sampel ?? '',
                 ])
             ];
 
@@ -82,35 +131,35 @@ class CatatanHarianController extends Controller // Hanya satu '{' di sini
         }
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('waktu_pencatatan', [$request->start_date, $request->end_date]);
+            $query->whereBetween('tanggal_lebur', [$request->start_date, $request->end_date]);
         }
 
-        $totalAnoda = (clone $query)->sum('berat_anoda');
-        $totalSlag = (clone $query)->sum('berat_slag');
         $totalMaterial = (clone $query)->sum('berat_material');
+        $totalLogam = (clone $query)->sum('berat_logam');
+        $totalSlag = (clone $query)->sum('berat_slag');
 
         $persentaseLoss = $totalMaterial > 0
-            ? (($totalMaterial - $totalAnoda - $totalSlag) / $totalMaterial) * 100
+            ? (($totalMaterial - $totalLogam - $totalSlag) / $totalMaterial) * 100
             : 0;
 
-        // Per Kontrak Karya -> dipakai untuk bar chart perbandingan Material/Anoda/Slag
         $byKontrak = (clone $query)
-            ->selectRaw('kontrak_karya, SUM(berat_material) as total_material, SUM(berat_anoda) as total_anoda, SUM(berat_slag) as total_slag')
+            ->selectRaw('kontrak_karya, SUM(berat_material) as total_material, SUM(berat_logam) as total_logam, SUM(berat_slag) as total_slag')
             ->groupBy('kontrak_karya')
             ->get();
 
-        // Per Tanggal -> dipakai untuk combo chart (bar Material/Fluks/Slag + line Recovery %)
         $byDate = (clone $query)
-            ->selectRaw('DATE(waktu_pencatatan) as tanggal, SUM(berat_material) as total_material, SUM(berat_anoda) as total_anoda, SUM(berat_fluks) as total_fluks, SUM(berat_slag) as total_slag')
-            ->groupBy('tanggal')
-            ->orderBy('tanggal')
-            ->get()
-            ->map(function ($row) {
-                $row->recovery = $row->total_material > 0
-                    ? round(($row->total_anoda / $row->total_material) * 100, 2)
-                    : 0;
-                return $row;
-            });
+            ->selectRaw('tanggal_lebur as tanggal, SUM(berat_material) as total_material, SUM(berat_logam) as total_logam, SUM(berat_fluks) as total_fluks, SUM(berat_slag) as total_slag')
+            ->groupBy('tanggal_lebur')
+            ->orderBy('tanggal_lebur')
+            ->get();
+
+        // Recovery (%) per tanggal, dipakai di chart combo dashboard-peleburan
+        $byDate->transform(function ($row) {
+            $row->recovery = $row->total_material > 0
+                ? ($row->total_logam / $row->total_material) * 100
+                : 0;
+            return $row;
+        });
 
         $kontrakOptions = CatatanHarian::select('kontrak_karya')
             ->distinct()
@@ -119,7 +168,7 @@ class CatatanHarianController extends Controller // Hanya satu '{' di sini
 
         return view('dashboard-peleburan', [
             'totalMaterial' => $totalMaterial,
-            'totalAnoda' => $totalAnoda,
+            'totalAnoda' => $totalLogam, // dipetakan ke berat_logam (menggantikan berat_anoda lama)
             'totalSlag' => $totalSlag,
             'persentaseLoss' => $persentaseLoss,
             'byKontrak' => $byKontrak,

@@ -11,8 +11,7 @@
         <flux:sidebar.toggle class="lg:hidden" />
         
         <div class="flex items-center gap-2 px-6 py-4">
-            <x-app-logo class="size-6 text-blue-600" />
-            <span class="font-semibold text-zinc-900 dark:text-white">Platform</span>
+            <span class="font-semibold text-zinc-900 dark:text-white">Smelting</span>
         </div>
 
         <!-- Menu Navigasi Samping -->

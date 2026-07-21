@@ -8,16 +8,24 @@ class CatatanHarian extends Model
 {
     // Daftarkan kolom agar diizinkan masuk ke DB
     protected $fillable = [
-        'waktu_pencatatan',
+        'tanggal_lebur',
+        'no_lebur',
         'kontrak_karya',
+        'tanur_pemakaian',
+        'krusibel_ke',
         'jenis_material',
-        'kode_material',
-        'jenis_furnace',
         'berat_material',
+        'jumlah_ingot',
         'jenis_fluks',
         'berat_fluks',
-        'berat_anoda',
+        'loading_dore',
+        'pouring',
+        'jumlah_jam_alat',
+        'completed_sof',
+        'suhu',
+        'berat_logam',
+        'jumlah_anoda_bar_ball',
+        'berat_sample',
         'berat_slag',
-        'berat_sampel',
     ];
 }

@@ -41,7 +41,7 @@
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="p-4 bg-amber-50 dark:bg-zinc-800 rounded-xl shadow border border-amber-300 dark:border-zinc-700 text-center">
-                <p class="text-sm text-zinc-500">Berat Material (kg)</p>
+                <p class="text-sm text-zinc-500">Berat Dore Bullion (kg)</p>
                 <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{{ number_format($totalMaterial ?? 0, 2) }}</p>
             </div>
 
@@ -67,7 +67,7 @@
             <!-- Bar chart per Kontrak Karya -->
             <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow border border-zinc-200 dark:border-zinc-700">
                 <h2 class="text-sm font-medium mb-4 text-zinc-700 dark:text-zinc-300">
-                    Pembagian Berat Material, Anoda, dan Slag (kg) berdasarkan Kontrak Karya
+                    Pembagian Berat Dore Bullion, Anoda, dan Slag (kg) berdasarkan Kontrak Karya
                 </h2>
                 <div class="relative" style="height: 360px;">
                     <canvas id="chartByKontrak"></canvas>
@@ -77,7 +77,7 @@
             <!-- Combo chart per Tanggal -->
             <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow border border-zinc-200 dark:border-zinc-700">
                 <h2 class="text-sm font-medium mb-4 text-zinc-700 dark:text-zinc-300">
-                    Pembagian Berat Material, Fluks, dan Slag (kg) berdasarkan Tanggal
+                    Pembagian Berat Dore Bullion, Fluks, dan Slag (kg) berdasarkan Tanggal
                 </h2>
                 <div class="relative" style="height: 360px;">
                     <canvas id="chartByDate"></canvas>
@@ -95,7 +95,7 @@
                         <thead>
                             <tr class="border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 text-sm">
                                 <th class="pb-2">Tanggal</th>
-                                <th class="pb-2">Material</th>
+                                <th class="pb-2">Dore Bullion</th>
                                 <th class="pb-2">Anoda</th>
                                 <th class="pb-2">Fluks</th>
                                 <th class="pb-2">Slag</th>
@@ -107,7 +107,7 @@
                                 <tr class="border-b border-zinc-100 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100 text-sm">
                                     <td class="py-2">{{ $row->tanggal }}</td>
                                     <td class="py-2">{{ number_format($row->total_material ?? 0, 2) }}</td>
-                                    <td class="py-2">{{ number_format($row->total_anoda ?? 0, 2) }}</td>
+                                    <td class="py-2">{{ number_format($row->total_logam ?? 0, 2) }}</td>
                                     <td class="py-2">{{ number_format($row->total_fluks ?? 0, 2) }}</td>
                                     <td class="py-2">{{ number_format($row->total_slag ?? 0, 2) }}</td>
                                     <td class="py-2">{{ number_format($row->recovery ?? 0, 2) }}%</td>
@@ -130,7 +130,7 @@
                         <thead>
                             <tr class="border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 text-sm">
                                 <th class="pb-2">Kontrak Karya</th>
-                                <th class="pb-2">Total Material</th>
+                                <th class="pb-2">Total Dore Bullion</th>
                                 <th class="pb-2">Total Anoda</th>
                                 <th class="pb-2">Total Slag</th>
                             </tr>
@@ -140,7 +140,7 @@
                                 <tr class="border-b border-zinc-100 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100 text-sm">
                                     <td class="py-2">{{ $row->kontrak_karya ?? '-' }}</td>
                                     <td class="py-2">{{ number_format($row->total_material ?? 0, 2) }}</td>
-                                    <td class="py-2">{{ number_format($row->total_anoda ?? 0, 2) }}</td>
+                                    <td class="py-2">{{ number_format($row->total_logam ?? 0, 2) }}</td>
                                     <td class="py-2">{{ number_format($row->total_slag ?? 0, 2) }}</td>
                                 </tr>
                             @endforeach
@@ -162,7 +162,7 @@
 
             const kontrakLabels = byKontrak.map(r => r.kontrak_karya ?? '-');
             const kontrakMaterial = byKontrak.map(r => parseFloat(r.total_material ?? 0));
-            const kontrakAnoda = byKontrak.map(r => parseFloat(r.total_anoda ?? 0));
+            const kontrakAnoda = byKontrak.map(r => parseFloat(r.total_logam ?? 0));
             const kontrakSlag = byKontrak.map(r => parseFloat(r.total_slag ?? 0));
 
             const dateLabels = byDate.map(r => r.tanggal);
@@ -178,7 +178,7 @@
                     labels: kontrakLabels,
                     datasets: [
                         {
-                            label: 'Berat Material (kg)',
+                            label: 'Berat Dore Bullion (kg)',
                             data: kontrakMaterial,
                             backgroundColor: '#2f8f86'
                         },
@@ -223,7 +223,7 @@
                         },
                         {
                             type: 'bar',
-                            label: 'Berat Material (kg)',
+                            label: 'Berat Dore Bullion (kg)',
                             data: dateMaterial,
                             backgroundColor: '#c9c9c9',
                             yAxisID: 'y'

@@ -1,6 +1,6 @@
 <x-layouts::app :title="__('Laporan Peleburan')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        
+
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
             <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b pb-2">
                 Formulir Catatan Harian Peleburan
@@ -18,77 +18,167 @@
                     {{ session('error') }}
                 </div>
             @endif
-            
-            <!-- Tambahkan action dan method -->
-            <form action="{{ route('catatan-harian.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @csrf <!-- Wajib untuk keamanan Laravel -->
 
-                <!-- Baris 1: Waktu & Perusahaan -->
+            <form action="{{ route('catatan-harian.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @csrf
+
+                <!-- Tanggal Lebur -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Waktu Pencatatan</label>
-                    <input type="datetime-local" name="waktu_pencatatan" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Lebur</label>
+                    <input type="date" name="tanggal_lebur" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
+                <!-- No. Lebur -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">No. Lebur</label>
+                    <input type="number" step="1" name="no_lebur" required placeholder="0"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Kontrak Karya (string + datalist, bisa nambah sendiri) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kontrak Karya</label>
-                    <select name="kontrak_karya" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                        <option value="">-- Pilih Perusahaan --</option>
-                        <option value="PT Aneka Tambang Tbk">PT Aneka Tambang Tbk</option>
-                        <option value="PT Freeport Indonesia">PT Freeport Indonesia</option>
-                        <option value="PT Vale Indonesia Tbk">PT Vale Indonesia Tbk</option>
-                        <option value="PT Amman Mineral">PT Amman Mineral</option>
-                    </select>
+                    <input type="text" name="kontrak_karya" list="kontrakKaryaList" required
+                           placeholder="Ketik atau pilih..."
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <datalist id="kontrakKaryaList">
+                        @foreach($kontrakOptions ?? [] as $opt)
+                            <option value="{{ $opt }}">
+                        @endforeach
+                    </datalist>
                 </div>
 
-                <!-- Baris 2: Detail Material -->
+                <!-- Tanur Pemakaian (string + datalist) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanur Pemakaian</label>
+                    <input type="text" name="tanur_pemakaian" list="tanurPemakaianList" required
+                           placeholder="Ketik atau pilih..."
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <datalist id="tanurPemakaianList">
+                        @foreach($tanurOptions ?? [] as $opt)
+                            <option value="{{ $opt }}">
+                        @endforeach
+                    </datalist>
+                </div>
+
+                <!-- Krusibel Ke- -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Krusibel Ke-</label>
+                    <input type="number" step="1" name="krusibel_ke" required placeholder="0"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Jenis Material (string + datalist) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Material</label>
-                    <input type="text" name="jenis_material" placeholder="Contoh: Bijih Tembaga" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kode Material</label>
-                    <input type="text" name="kode_material" required placeholder="Contoh: CU-001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Material (kg)</label>
-                    <input type="number" step="0.01" name="berat_material" required placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <input type="text" name="jenis_material" list="jenisMaterialList" required
+                           placeholder="Contoh: Bijih Tembaga"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <datalist id="jenisMaterialList">
+                        @foreach($materialOptions ?? [] as $opt)
+                            <option value="{{ $opt }}">
+                        @endforeach
+                    </datalist>
                 </div>
 
+                <!-- Berat Material (Kg) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Furnace</label>
-                    <input type="text" name="jenis_furnace" placeholder="Contoh: Rotary Kiln" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Material (Kg)</label>
+                    <input type="number" step="0.01" name="berat_material" required placeholder="0.00"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
-                <!-- Baris 3: Fluks -->
+                <!-- Jumlah Ingot -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jumlah Ingot</label>
+                    <input type="number" step="1" name="jumlah_ingot" placeholder="0"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Jenis Fluks (string + datalist) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Fluks</label>
-                    <input type="text" name="jenis_fluks" placeholder="Contoh: Limestone / Silica" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <input type="text" name="jenis_fluks" list="jenisFluksList" required
+                           placeholder="Contoh: Limestone / Silica"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <datalist id="jenisFluksList">
+                        @foreach($fluksOptions ?? [] as $opt)
+                            <option value="{{ $opt }}">
+                        @endforeach
+                    </datalist>
                 </div>
 
+                <!-- Berat Fluks (Kg) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Fluks (kg)</label>
-                    <input type="number" step="0.01" name="berat_fluks" required placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Fluks (Kg)</label>
+                    <input type="number" step="0.01" name="berat_fluks" required placeholder="0.00"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
-                <!-- Baris 4: Hasil Akhir -->
+                <!-- Loading Dore (jam:menit) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Anoda (kg)</label>
-                    <input type="number" step="0.01" name="berat_anoda" required placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Loading Dore</label>
+                    <input type="time" name="loading_dore"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
+                <!-- Pouring (jam:menit) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Slag (kg)</label>
-                    <input type="number" step="0.01" name="berat_slag" required placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pouring</label>
+                    <input type="time" name="pouring"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
+                <!-- Jumlah Jam Alat (jam:menit) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Sampel (kg)</label>
-                    <input type="number" step="0.01" name="berat_sampel" required placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jumlah Jam Alat</label>
+                    <input type="time" name="jumlah_jam_alat"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
-                <!-- Tombol Simpan diubah menjadi type="submit" -->
+                <!-- Completed SOF (jam:menit) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Completed SOF</label>
+                    <input type="time" name="completed_sof"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Suhu -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Suhu ( &deg;C )</label>
+                    <input type="number" step="1" name="suhu" placeholder="0"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Berat Logam (Kg) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Logam (Kg)</label>
+                    <input type="number" step="0.01" name="berat_logam" required placeholder="0.00"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Jumlah Anoda/Bar/Ball -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jumlah Anoda/Bar/Ball</label>
+                    <input type="number" step="1" name="jumlah_anoda_bar_ball" placeholder="0"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Berat Sample (Kg) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Sample (Kg)</label>
+                    <input type="number" step="0.01" name="berat_sample" required placeholder="0.00"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
+                <!-- Berat Slag (Kg) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Slag (Kg)</label>
+                    <input type="number" step="0.01" name="berat_slag" required placeholder="0.00"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                </div>
+
                 <div class="md:col-span-2 mt-6">
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200">
                         Simpan Data Pencatatan

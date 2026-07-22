@@ -18,13 +18,20 @@
         <flux:navlist vertical>
             <!-- Main Dashboard Link -->
             <flux:navlist.item href="{{ route('dashboard') }}" icon="home">
-                Dashboard
+                Form Catatan Peleburan
             </flux:navlist.item>
 
             <!-- Dashboard Peleburan Link -->
             <flux:navlist.item href="{{ route('laporan-peleburan.dashboard') }}" icon="chart-bar">
                 Dashboard Peleburan
             </flux:navlist.item>
+
+            <!-- Report Laporan (SOF) Kontrak Karya Dropdown -->
+            <flux:navlist.group heading="Report Laporan (SOF) Kontrak Karya" icon="document-chart-bar" expandable>
+                <flux:navlist.item href="{{ route('laporan-peleburan.dashboard', ['kontrak_karya' => 'PT. BSI']) }}">
+                    PT. BSI
+                </flux:navlist.item>
+            </flux:navlist.group>
         </flux:navlist>
 
         <flux:spacer />

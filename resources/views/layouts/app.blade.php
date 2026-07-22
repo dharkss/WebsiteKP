@@ -25,8 +25,12 @@
             <flux:navlist.item href="{{ route('laporan-peleburan.dashboard') }}" icon="chart-bar">
                 Dashboard Peleburan
             </flux:navlist.item>
+        </flux:navlist>
 
-            <!-- Report Laporan (SOF) Kontrak Karya Dropdown -->
+        <flux:separator class="my-2" />
+
+        <!-- Menu Terpisah: Report Laporan (SOF) Kontrak Karya -->
+        <flux:navlist vertical>
             <flux:navlist.group heading="Report Laporan (SOF) Kontrak Karya" icon="document-chart-bar" expandable>
                 <flux:navlist.item href="{{ route('laporan-peleburan.dashboard', ['kontrak_karya' => 'PT. BSI']) }}">
                     PT. BSI

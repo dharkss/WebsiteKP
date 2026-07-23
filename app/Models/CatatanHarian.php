@@ -25,7 +25,7 @@ class CatatanHarian extends Model
         'suhu',
         'berat_logam',
         'jumlah_anoda_bar_ball',
-        'berat_sample',
+        'berat_sampel',
         'berat_slag',
     ];
 }

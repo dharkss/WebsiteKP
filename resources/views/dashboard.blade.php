@@ -19,6 +19,15 @@
                 </div>
             @endif
 
+            @if ($errors->any())
+                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form action="{{ route('catatan-harian.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @csrf
 
@@ -168,7 +177,7 @@
                 <!-- Berat Sample (Kg) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Sample (Kg)</label>
-                    <input type="number" step="0.01" name="berat_sample" required placeholder="0.00"
+                    <input type="number" step="0.01" name="berat_sampel" required placeholder="0.00"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 

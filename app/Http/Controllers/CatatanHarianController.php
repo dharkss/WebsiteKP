@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\CatatanHarian;
 use Google\Client;
 use Google\Service\Sheets;
+use Google\Service\Sheets\ValueRange;
+use Illuminate\Http\Request;
 
 class CatatanHarianController extends Controller
 {
@@ -46,25 +47,25 @@ class CatatanHarianController extends Controller
     {
         // 1. Validasi Input
         $validated = $request->validate([
-            'tanggal_lebur'          => 'required|date',
-            'no_lebur'                => 'required|integer',
-            'kontrak_karya'           => 'required|string',
-            'tanur_pemakaian'         => 'required|string',
-            'krusibel_ke'             => 'required|integer',
-            'jenis_material'          => 'required|string',
-            'berat_material'          => 'required|numeric',
-            'jumlah_ingot'            => 'nullable|integer',
-            'jenis_fluks'             => 'required|string',
-            'berat_fluks'             => 'required|numeric',
-            'loading_dore'            => 'nullable|date_format:H:i',
-            'pouring'                 => 'nullable|date_format:H:i',
-            'jumlah_jam_alat'         => 'nullable|date_format:H:i',
-            'completed_sof'           => 'nullable|date_format:H:i',
-            'suhu'                    => 'nullable|integer',
-            'berat_logam'             => 'required|numeric',
-            'jumlah_anoda_bar_ball'   => 'nullable|integer',
-            'berat_sample'            => 'required|numeric',
-            'berat_slag'              => 'required|numeric',
+            'tanggal_lebur' => 'required|date',
+            'no_lebur' => 'required|integer',
+            'kontrak_karya' => 'required|string',
+            'tanur_pemakaian' => 'required|string',
+            'krusibel_ke' => 'required|integer',
+            'jenis_material' => 'required|string',
+            'berat_material' => 'required|numeric',
+            'jumlah_ingot' => 'nullable|integer',
+            'jenis_fluks' => 'required|string',
+            'berat_fluks' => 'required|numeric',
+            'loading_dore' => 'nullable|date_format:H:i',
+            'pouring' => 'nullable|date_format:H:i',
+            'jumlah_jam_alat' => 'nullable|date_format:H:i',
+            'completed_sof' => 'nullable|date_format:H:i',
+            'suhu' => 'nullable|integer',
+            'berat_logam' => 'required|numeric',
+            'jumlah_anoda_bar_ball' => 'nullable|integer',
+            'berat_sampel' => 'required|numeric',
+            'berat_slag' => 'required|numeric',
         ]);
 
         // 2. Simpan ke database bawaan (SQLite)
@@ -72,11 +73,11 @@ class CatatanHarianController extends Controller
 
         // 3. Tembak data langsung ke Google Sheets
         try {
-            $client = new \Google\Client();
+            $client = new Client;
             $client->setAuthConfig(storage_path('app/google-credentials.json'));
-            $client->addScope(\Google\Service\Sheets::SPREADSHEETS);
+            $client->addScope(Sheets::SPREADSHEETS);
 
-            $service = new \Google\Service\Sheets($client);
+            $service = new Sheets($client);
 
             $spreadsheetId = '1d95pJnZzLJiPYuMhfio8h05lmvLnklbKR1JJKmbJoew';
             $range = 'Sheet1!A:S';
@@ -100,23 +101,23 @@ class CatatanHarianController extends Controller
                     $request->suhu ?? '',
                     $request->berat_logam ?? '',
                     $request->jumlah_anoda_bar_ball ?? '',
-                    $request->berat_sample ?? '',
+                    $request->berat_sampel ?? '',
                     $request->berat_slag ?? '',
-                ])
+                ]),
             ];
 
-            $body = new \Google\Service\Sheets\ValueRange([
-                'values' => $values
+            $body = new ValueRange([
+                'values' => $values,
             ]);
 
             $params = [
-                'valueInputOption' => 'USER_ENTERED'
+                'valueInputOption' => 'USER_ENTERED',
             ];
 
             $service->spreadsheets_values->append($spreadsheetId, $range, $body, $params);
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Data masuk ke sistem lokal, tapi gagal sinkronisasi ke Sheets: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Data masuk ke sistem lokal, tapi gagal sinkronisasi ke Sheets: '.$e->getMessage());
         }
 
         return redirect()->back()->with('success', 'Data peleburan berhasil disimpan dan langsung masuk ke Google Sheets!');
@@ -158,6 +159,7 @@ class CatatanHarianController extends Controller
             $row->recovery = $row->total_material > 0
                 ? ($row->total_logam / $row->total_material) * 100
                 : 0;
+
             return $row;
         });
 

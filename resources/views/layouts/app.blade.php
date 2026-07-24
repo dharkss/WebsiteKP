@@ -21,6 +21,11 @@
                 Form Catatan Peleburan
             </flux:navlist.item>
 
+            <!-- BARU: Data Peleburan (lihat, edit, hapus) -->
+            <flux:navlist.item href="{{ route('data-peleburan.index') }}" icon="table-cells">
+                Data Peleburan
+            </flux:navlist.item>
+
             <!-- Report Laporan (SOF) Kontrak Karya Dropdown -->
             <flux:navlist.group heading="Report Laporan (SOF) Kontrak Karya" icon="document-chart-bar" expandable>
                 <flux:navlist.item href="{{ route('laporan-peleburan.dashboard', ['kontrak_karya' => 'PT. BSI']) }}">
@@ -38,15 +43,3 @@
 
         <!-- Menu User di Bagian Bawah -->
         <div class="mt-auto p-4 border-t border-zinc-200 dark:border-zinc-800">
-            <x-desktop-user-menu />
-        </div>
-    </flux:sidebar>
-
-    <!-- Konten Utama Dashboard -->
-    <flux:main>
-        {{ $slot }}
-    </flux:main>
-
-    @fluxScripts
-</body>
-</html>

@@ -32,11 +32,6 @@ class CatatanHarianController extends Controller
 
     /**
      * Tampilkan formulir catatan harian.
-     * NOTE: sebelumnya method ini tidak ada di controller yang diberikan —
-     * jika route('dashboard') sudah diarahkan ke controller/method lain,
-     * pastikan method itu juga mengoper $kontrakOptions, $tanurOptions,
-     * $materialOptions, $fluksOptions ke view seperti di bawah ini,
-     * atau arahkan route-nya ke method create() ini.
      */
     public function create()
     {
@@ -64,7 +59,7 @@ class CatatanHarianController extends Controller
             'suhu' => 'nullable|integer',
             'berat_logam' => 'required|numeric',
             'jumlah_anoda_bar_ball' => 'nullable|integer',
-            'berat_sampel' => 'required|numeric',
+            'berat_sample' => 'required|numeric', // FIXED: sebelumnya "berat_sampel"
             'berat_slag' => 'required|numeric',
         ]);
 
@@ -101,7 +96,7 @@ class CatatanHarianController extends Controller
                     $request->suhu ?? '',
                     $request->berat_logam ?? '',
                     $request->jumlah_anoda_bar_ball ?? '',
-                    $request->berat_sampel ?? '',
+                    $request->berat_sampel ?? '', // FIXED: sebelumnya "berat_sampel"
                     $request->berat_slag ?? '',
                 ]),
             ];
@@ -170,7 +165,7 @@ class CatatanHarianController extends Controller
 
         return view('dashboard-peleburan', [
             'totalMaterial' => $totalMaterial,
-            'totalAnoda' => $totalLogam, // dipetakan ke berat_logam (menggantikan berat_anoda lama)
+            'totalAnoda' => $totalLogam,
             'totalSlag' => $totalSlag,
             'persentaseLoss' => $persentaseLoss,
             'byKontrak' => $byKontrak,
@@ -180,5 +175,89 @@ class CatatanHarianController extends Controller
             'startDate' => $request->start_date,
             'endDate' => $request->end_date,
         ]);
+    }
+
+    /**
+     * BARU: Tampilkan daftar semua catatan harian (bisa difilter per kontrak karya).
+     */
+    public function index(Request $request)
+    {
+        $query = CatatanHarian::query();
+
+        if ($request->filled('kontrak_karya')) {
+            $query->where('kontrak_karya', $request->kontrak_karya);
+        }
+
+        $data = $query
+            ->orderByDesc('tanggal_lebur')
+            ->orderByDesc('id')
+            ->paginate(15)
+            ->withQueryString();
+
+        $kontrakOptions = CatatanHarian::select('kontrak_karya')
+            ->distinct()->whereNotNull('kontrak_karya')->pluck('kontrak_karya');
+
+        return view('data-peleburan', [
+            'data' => $data,
+            'kontrakOptions' => $kontrakOptions,
+            'selectedKontrak' => $request->kontrak_karya,
+        ]);
+    }
+
+    /**
+     * BARU: Tampilkan form edit untuk satu baris data.
+     */
+    public function edit(CatatanHarian $catatanHarian)
+    {
+        return view('data-peleburan-edit', array_merge(
+            ['catatan' => $catatanHarian],
+            $this->getDatalistOptions()
+        ));
+    }
+
+    /**
+     * BARU: Update satu baris data.
+     */
+    public function update(Request $request, CatatanHarian $catatanHarian)
+    {
+        $validated = $request->validate([
+            'tanggal_lebur' => 'required|date',
+            'no_lebur' => 'required|integer',
+            'kontrak_karya' => 'required|string',
+            'tanur_pemakaian' => 'required|string',
+            'krusibel_ke' => 'required|integer',
+            'jenis_material' => 'required|string',
+            'berat_material' => 'required|numeric',
+            'jumlah_ingot' => 'nullable|integer',
+            'jenis_fluks' => 'required|string',
+            'berat_fluks' => 'required|numeric',
+            'loading_dore' => 'nullable|date_format:H:i',
+            'pouring' => 'nullable|date_format:H:i',
+            'jumlah_jam_alat' => 'nullable|date_format:H:i',
+            'completed_sof' => 'nullable|date_format:H:i',
+            'suhu' => 'nullable|integer',
+            'berat_logam' => 'required|numeric',
+            'jumlah_anoda_bar_ball' => 'nullable|integer',
+            'berat_sampel' => 'required|numeric',
+            'berat_slag' => 'required|numeric',
+        ]);
+
+        $catatanHarian->update($validated);
+
+        return redirect()
+            ->route('data-peleburan.index')
+            ->with('success', 'Data berhasil diperbarui.');
+    }
+
+    /**
+     * BARU: Hapus satu baris data.
+     */
+    public function destroy(CatatanHarian $catatanHarian)
+    {
+        $catatanHarian->delete();
+
+        return redirect()
+            ->route('data-peleburan.index')
+            ->with('success', 'Data berhasil dihapus.');
     }
 }

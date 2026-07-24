@@ -100,27 +100,33 @@
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
+                @php
+                    // Helper lokal: potong value waktu jadi H:i saja, aman
+                    // walaupun tersimpan dengan detik (H:i:s) di database.
+                    $formatJam = fn ($value) => $value ? substr($value, 0, 5) : null;
+                @endphp
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Loading Dore</label>
-                    <input type="time" name="loading_dore" value="{{ old('loading_dore', $catatan->loading_dore) }}"
+                    <input type="time" name="loading_dore" value="{{ old('loading_dore', $formatJam($catatan->loading_dore)) }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pouring</label>
-                    <input type="time" name="pouring" value="{{ old('pouring', $catatan->pouring) }}"
+                    <input type="time" name="pouring" value="{{ old('pouring', $formatJam($catatan->pouring)) }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jumlah Jam Alat</label>
-                    <input type="time" name="jumlah_jam_alat" value="{{ old('jumlah_jam_alat', $catatan->jumlah_jam_alat) }}"
+                    <input type="time" name="jumlah_jam_alat" value="{{ old('jumlah_jam_alat', $formatJam($catatan->jumlah_jam_alat)) }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Completed SOF</label>
-                    <input type="time" name="completed_sof" value="{{ old('completed_sof', $catatan->completed_sof) }}"
+                    <input type="time" name="completed_sof" value="{{ old('completed_sof', $formatJam($catatan->completed_sof)) }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 
@@ -144,7 +150,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Berat Sample (Kg)</label>
-                    <input type="number" step="0.01" name="berat_sample" value="{{ old('berat_sample', $catatan->berat_sample) }}" required
+                    <input type="number" step="0.01" name="berat_sampel" value="{{ old('berat_sampel', $catatan->berat_sampel) }}" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 </div>
 

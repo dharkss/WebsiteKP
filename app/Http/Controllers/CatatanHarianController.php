@@ -31,6 +31,40 @@ class CatatanHarianController extends Controller
     }
 
     /**
+     * Helper: normalisasi field waktu (H:i) sebelum divalidasi.
+     * 1. Kalau browser mengirim string kosong "" (bukan null) karena field
+     *    time tidak disentuh user, ubah jadi null supaya rule "nullable"
+     *    benar-benar berlaku dan tidak lolos ke pengecekan date_format:H:i.
+     * 2. Kalau value terkirim dengan detik (mis. "22:01:00" karena value asal
+     *    di database/HTML bertipe H:i:s), potong jadi "H:i" saja supaya lolos
+     *    validasi date_format:H:i.
+     */
+    private function normalizeWaktu(Request $request)
+    {
+        $fields = ['loading_dore', 'pouring', 'jumlah_jam_alat', 'completed_sof'];
+
+        $normalized = [];
+        foreach ($fields as $field) {
+            $value = $request->input($field);
+
+            if (! $value) {
+                $normalized[$field] = null;
+
+                continue;
+            }
+
+            // Ambil hanya bagian HH:MM di depan, buang detik jika ada.
+            if (preg_match('/^(\d{1,2}:\d{2})/', trim($value), $matches)) {
+                $normalized[$field] = $matches[1];
+            } else {
+                $normalized[$field] = $value;
+            }
+        }
+
+        $request->merge($normalized);
+    }
+
+    /**
      * Tampilkan formulir catatan harian.
      */
     public function create()
@@ -40,6 +74,9 @@ class CatatanHarianController extends Controller
 
     public function store(Request $request)
     {
+        // 0. Normalisasi field waktu (string kosong -> null)
+        $this->normalizeWaktu($request);
+
         // 1. Validasi Input
         $validated = $request->validate([
             'tanggal_lebur' => 'required|date',
@@ -59,7 +96,7 @@ class CatatanHarianController extends Controller
             'suhu' => 'nullable|integer',
             'berat_logam' => 'required|numeric',
             'jumlah_anoda_bar_ball' => 'nullable|integer',
-            'berat_sample' => 'required|numeric', // FIXED: sebelumnya "berat_sampel"
+            'berat_sampel' => 'required|numeric',
             'berat_slag' => 'required|numeric',
         ]);
 
@@ -96,7 +133,7 @@ class CatatanHarianController extends Controller
                     $request->suhu ?? '',
                     $request->berat_logam ?? '',
                     $request->jumlah_anoda_bar_ball ?? '',
-                    $request->berat_sampel ?? '', 
+                    $request->berat_sampel ?? '',
                     $request->berat_slag ?? '',
                 ]),
             ];
@@ -220,6 +257,9 @@ class CatatanHarianController extends Controller
      */
     public function update(Request $request, CatatanHarian $catatanHarian)
     {
+        // 0. Normalisasi field waktu (string kosong -> null)
+        $this->normalizeWaktu($request);
+
         $validated = $request->validate([
             'tanggal_lebur' => 'required|date',
             'no_lebur' => 'required|integer',

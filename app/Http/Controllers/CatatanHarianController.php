@@ -96,7 +96,7 @@ class CatatanHarianController extends Controller
                     $request->suhu ?? '',
                     $request->berat_logam ?? '',
                     $request->jumlah_anoda_bar_ball ?? '',
-                    $request->berat_sampel ?? '', // FIXED: sebelumnya "berat_sampel"
+                    $request->berat_sampel ?? '', 
                     $request->berat_slag ?? '',
                 ]),
             ];

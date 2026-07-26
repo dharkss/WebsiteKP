@@ -31,6 +31,18 @@
             <flux:navlist.item href="{{ route('laporan-peleburan.dashboard') }}" icon="chart-bar">
                 Dashboard Peleburan
             </flux:navlist.item>
+
+            <flux:navlist.group heading="Mineral Dressing" icon="beaker" expandable>
+                <flux:navlist.item href="{{ route('mineral-dressing.input-feed') }}">
+                    Input Feed
+                </flux:navlist.item>
+                <flux:navlist.item href="{{ route('mineral-dressing.chg') }}">
+                    CHG
+                </flux:navlist.item>
+                <flux:navlist.item href="{{ route('mineral-dressing.clg') }}">
+                    CLG
+                </flux:navlist.item>
+            </flux:navlist.group>
         </flux:navlist>
 
         <flux:spacer />

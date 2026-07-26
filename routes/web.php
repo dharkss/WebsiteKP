@@ -17,7 +17,7 @@ Route::get('/laporan-peleburan', [CatatanHarianController::class, 'dashboard'])
 // Simpan data form
 Route::post('/catatan-harian', [CatatanHarianController::class, 'store'])
     ->name('catatan-harian.store');
-
+    
 // ==== BARU: kelola data (lihat, edit, hapus) ====
 Route::get('/data-peleburan', [CatatanHarianController::class, 'index'])
     ->name('data-peleburan.index');
@@ -31,4 +31,24 @@ Route::put('/data-peleburan/{catatanHarian}', [CatatanHarianController::class, '
 Route::delete('/data-peleburan/{catatanHarian}', [CatatanHarianController::class, 'destroy'])
     ->name('data-peleburan.destroy');
 
+use App\Http\Controllers\MineralDressingController;
+
+// Mineral Dressing - Input Feed
+Route::get('/mineral-dressing/input-feed', [MineralDressingController::class, 'createInputFeed'])
+    ->name('mineral-dressing.input-feed');
+Route::post('/mineral-dressing/input-feed', [MineralDressingController::class, 'storeInputFeed'])
+    ->name('mineral-dressing.input-feed.store');
+
+// Mineral Dressing - CHG
+Route::get('/mineral-dressing/chg', [MineralDressingController::class, 'createChg'])
+    ->name('mineral-dressing.chg');
+Route::post('/mineral-dressing/chg', [MineralDressingController::class, 'storeChg'])
+    ->name('mineral-dressing.chg.store');
+
+// Mineral Dressing - CLG
+Route::get('/mineral-dressing/clg', [MineralDressingController::class, 'createClg'])
+    ->name('mineral-dressing.clg');
+Route::post('/mineral-dressing/clg', [MineralDressingController::class, 'storeClg'])
+    ->name('mineral-dressing.clg.store');
+    
 require __DIR__.'/settings.php';
